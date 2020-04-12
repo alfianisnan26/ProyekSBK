@@ -1,3 +1,29 @@
+ ;author:    -Alfian Badrul Isnan            <Teknik Komputer - 1806148643 >
+;           -Ricky                          <Teknik Komputer - 1806199921 >
+;           -Suryanoto Negoro               <Teknik Komputer - 1806200122 >
+;           -Yusuf Abraham Bismo Kristanto  <Teknik Komputer - 1806200274 >
+;Kelompok :1A
+;Judul    :Dr Chord
+;---------------------------------------------------------------------------------------------------------------------------------
+;Cara menggunakan:      1. Not Natural : asdfghjkl
+;	                    2. Not Kres    : wetyuop
+;	                    3. Range Nada  : C1-E2 
+;	                    4. Maks 5 not untuk mencari chord
+;	                    5. SPACE=PLAY, BACKSPACE=CLEAR
+;	                    6. Ganti warna tema buka setting 
+;                       7. No 1&2 digunakan untuk menjalankan chord recognizer pada piano
+;---------------------------------------------------------------------------------------------------------------------------------
+;
+;                       Dr.Chord merupakan aplikasi yang melakukan recognition input ke chord
+;               
+;                       Copyright <C> Kelompok 1A Teknik Komputer 2018
+;                       
+;                       Program merupakan program gratis yang dapat digunakan sebagai bahan 
+;                       pembelajaran maupun referensi bagi praktikan di masa yang akan datang.
+;---------------------------------------------------------------------------------------------------------------------------------	
+;Referensi: https://github.com/nthnfaustine/PianoWave
+;           http://www.angelfire.com/in2/yala/t4chords.htm
+
 ;Color Database
 cblk = 00000000b ;Color Black
 cblu = 00000001b ;Color Blue
@@ -337,7 +363,7 @@ clearcount	db 20,10,15,'$'
         mov si, yb
         call pdbl
     endm
-	dblx macro color ;draw bos/line from register
+	dblx macro color ;draw box/line from register
 		mov al, color
 		pop si
 		pop di
@@ -357,7 +383,7 @@ clearcount	db 20,10,15,'$'
 		mov ah, state
 		call ppno
 	endm
-	dpnoall macro ;draw piano all notes
+	dpnoall macro ;draw piano all notes by calling pdpnoall
 		call pdpnoall
 	endm
 	c macro x, y
@@ -365,7 +391,7 @@ clearcount	db 20,10,15,'$'
 		mov dl, x
 		call scp
 	endm
-	printf macro msg, col, x, y
+	printf macro msg, col, x, y ;print string function byte 1 = length, byte 2 = x coord, byte 3 = y coord.
 		push si
 		c x,y
 		mov bh, 0
@@ -384,7 +410,7 @@ clearcount	db 20,10,15,'$'
 		mov msg[0], bl
 		pop si
 	endm
-	clearf macro msg
+	clearf macro msg ;clear string function
 		c msg[1], msg[2]
 		mov ch, 0
 		mov cl, msg[0]
@@ -393,17 +419,17 @@ clearcount	db 20,10,15,'$'
 		add al, msg[0]
 		c al, msg[2]
 	endm
-	stop macro
+	stop macro ;stop beep
 		mov ax, mem
 		and al, 0fch
 		out 61h, al
 	endm
-	play macro sound
+	play macro sound ;play beep macro
 		mov dx, sound
 		call pplay
 	endm
 ;PROC
-	pplay proc
+	pplay proc ;play beep function
 		mov al, 0b6h
 		out 43h, al
 		mov al, dl
@@ -416,7 +442,7 @@ clearcount	db 20,10,15,'$'
 		mov mem, ax
 	ret
 	endp     
-	pdpnoall proc
+	pdpnoall proc ;proc for draw all piano notes
 		mov bx, 0
 		loop_dpnoall:
 		push bx
@@ -429,7 +455,7 @@ clearcount	db 20,10,15,'$'
 		jne loop_dpnoall
 		ret
 	endp
-	pwasc proc
+	pwasc proc ;proc write a string character until $
 		add si, 3
 		j_wasc:
 		push bx
@@ -442,7 +468,7 @@ clearcount	db 20,10,15,'$'
 		jne j_wasc
 		ret
 	endp
-	pdasc proc
+	pdasc proc ;proc delete a string charcter
 		mov al, ' '
 		mov bh, 0
 		mov ah, 0ah
@@ -454,12 +480,12 @@ clearcount	db 20,10,15,'$'
 		c dh, dl
 		ret
 	endp
-    pdpx proc
+    pdpx proc ;proc draw piano pixel
         mov ah, 0ch
         int 10h
         ret
     endp
-    pdbl proc
+    pdbl proc ;piano draw box line
         loop_col:
         mov cx, wvar1
         loop_row:
@@ -476,7 +502,7 @@ clearcount	db 20,10,15,'$'
         ex_loop_col:
         ret
     endp
-	ppnochk proc
+	ppnochk proc ;proc piano check for drawing
 		cmp bl, 1
 		jne dpno_skip1
 			call psln
@@ -498,7 +524,7 @@ clearcount	db 20,10,15,'$'
 		dpno_end:
 		ret
 	endp
-    psln proc
+    psln proc ;proc to draw piano white left notes
 		add ax, 1
 		mov di, ax
 		mov si, dx
@@ -519,7 +545,7 @@ clearcount	db 20,10,15,'$'
 		dblx bh
 		ret 
     endp
-    psrn proc
+    psrn proc ;proc to draw piano right notes
 		add ax, 1
 		mov di, ax
 		mov si, dx
@@ -540,7 +566,7 @@ clearcount	db 20,10,15,'$'
 		dblx bh
 		ret 
     endp
-    pcwn proc
+    pcwn proc ;proc to draw piano white middle notes
 		add ax, 1
 		mov di, ax
 		mov si, dx
@@ -562,7 +588,7 @@ clearcount	db 20,10,15,'$'
 		dblx bh
 		ret 
     endp
-	pcbn proc
+	pcbn proc ;proc to draw black notes
 		add ax, 21
 		mov di, ax
 		mov si, dx
@@ -575,7 +601,7 @@ clearcount	db 20,10,15,'$'
 		dblx bh
 		ret 
     endp
-	ppno proc
+	ppno proc ;proc to draw piano from ID and state
 		;al ID
 		;ah state
 		mov dl, al
@@ -619,7 +645,7 @@ clearcount	db 20,10,15,'$'
 		c dl, dh
 		ret
 	endp
-	checkcvar proc
+	checkcvar proc ;check cvar for generate random color of string
 		cmp col_ran_s, 1
 		je checkvar_true
 			mov dl, col_std_c
@@ -633,7 +659,7 @@ clearcount	db 20,10,15,'$'
 		skip_cvar:
 		ret
 	endp
-	clearpno proc
+	clearpno proc ;clear a piano notes
 		dpnoall
 		clearf clearcount
 		clearf clearchord
@@ -652,7 +678,7 @@ clearcount	db 20,10,15,'$'
 		int 10h
 		ret
 	endp
-	chordplay proc
+	chordplay proc ;proc to play notes chord with beep
 		mov bx, 17
 		mov timer, 0
 		dloops:
@@ -680,7 +706,7 @@ clearcount	db 20,10,15,'$'
 		jmp dlend
 		ret
 	endp
-	wait_delay proc
+	wait_delay proc ;proc for delay of beep
 			mov ah, 00h
 			int 01ah
 			add dx, delay
@@ -691,7 +717,7 @@ clearcount	db 20,10,15,'$'
 			jl recheck
 		ret
 	endp
-	checkstat proc
+	checkstat proc ;proc for checking status if user start playing button
 		mov ah, 07h
 		int 21h
 		cmp al, ' '
@@ -712,7 +738,7 @@ clearcount	db 20,10,15,'$'
 			stop
 			ret
 	endp	
-	inputread proc
+	inputread proc ;input read for drwa piano and status in pianoplay state
 		notesc:
 		call checkcvar
 		printf head1, cvar1, 16, 0
@@ -774,7 +800,7 @@ clearcount	db 20,10,15,'$'
 		exinput:
 		ret
 	endp
-	menu proc
+	menu proc ;main menu proc
 		svm
 		loop_menu:
 		printf head1, cvar1, 16, 3
@@ -810,7 +836,7 @@ clearcount	db 20,10,15,'$'
 		jmp loop_menu
 		ret
 	endp
-	p_set_str proc
+	p_set_str proc ;proc for setting menu
 		printf nmenu2, cvar1, 2,2
 		printf set0, cvar1, 2, 7
 		printf set1, cvar1, 2, 5
@@ -841,7 +867,7 @@ clearcount	db 20,10,15,'$'
 		call wacc
 		ret
 	endp
-	cchord1 proc
+	cchord1 proc ;proc for searching chord with count 1 or 2
 		push ax
 		mov bx, 0
 		alop1:
@@ -883,7 +909,7 @@ clearcount	db 20,10,15,'$'
 		printf chord_notesA[si], cvar1, 13, 15
 		ret
 	endp
-	cchord proc ;BOOKMARK
+	cchord proc ;proc for searching chord with count 3 - 5
 		mov bx, 0
         mov al, 0
         mov di, 0
@@ -956,7 +982,7 @@ clearcount	db 20,10,15,'$'
 		stchkend:
 		ret
     endp
-    roll proc
+    roll proc ;pno_chord roll function
         mov ax, pno_chord
         and ax, 800h
         cmp ax, 0
@@ -979,7 +1005,7 @@ clearcount	db 20,10,15,'$'
         and pno_chord, 0FFFh
         ret
     endp
-.STARTUP
+.STARTUP ;main function
 	menu_jump:
 	call menu
 	screen_play:
@@ -1033,6 +1059,7 @@ clearcount	db 20,10,15,'$'
 	dbl pn_cshr_d, 247,b5,279,b5s
 	call checkcvar
 	call p_set_str
+
 	;Screen Setting Lies Here!
 	mov ah, 07h
 	int 21h
